@@ -26,3 +26,18 @@ samples, guidance on mobile development, and a full API reference.
 │-- pubspec.yaml
 │-- README.md
 ```
+## Download and Setup Instructions
+### 1. Install Flutter and Setup Android Studio
+You can install Flutter and set up Android Studio following this: [YouTube Video](https://www.youtube.com/watch?v=mMeQhLGD-og)
+### 2. Wireless Debugging
+You can run your Flutter app wirelessly. Follow this: [YouTube Video](https://www.youtube.com/watch?v=p2bsfBA6Ixg)
+
+## Team Name
+### DU_CodeBots🤖
+
+## Authors
+- Anika Sanzida Upoma (Roll-02)
+- Suraya Jannat Mim (Roll-17)
+- Ishrat Jahan Mim (Roll-52)
+- Tasmia Sultana Sumi (Roll-54)
+
