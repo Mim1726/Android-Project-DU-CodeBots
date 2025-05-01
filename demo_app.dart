@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-/*import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 
 void main() {
@@ -244,41 +244,6 @@ class AboutUsPage extends StatelessWidget {
       ),
     );
   }
-}*/
-void main() => runApp(MaterialApp(
-  home:Home(),
-));
-
-
-class Home extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: Text('My First App'),
-          centerTitle: true,
-          backgroundColor: Colors.pink[400],),
-        body: Center(
-          child: Image.network('url'),
-          /*Text(
-            'Hello Roy Mustang',
-            style: TextStyle(
-              fontSize: 20.0,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 2.0,
-              color: Colors.grey[600],
-            ),
-          ),*/
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: (){},
-          child: Text('Destroy bradly'),
-          backgroundColor: Colors.red[600],
-        )
-    );
-
-  }
 }
-
 
 
