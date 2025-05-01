@@ -1,22 +1,17 @@
 import 'package:flutter/material.dart';
-import 'home_screen.dart'; // Make sure this import is correct
+import 'signup_page.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Platr',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.deepOrange,
-      ),
-      home: const HomeScreen(),
+      title: 'Our App',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: signup_page(),
     );
   }
 }
