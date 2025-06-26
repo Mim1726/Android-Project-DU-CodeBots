@@ -18,6 +18,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage>
   final FlutterTts _flutterTts = FlutterTts();
   int likeCount = 0;
   List<String> comments = [];
+  bool isBookmarked = false; // ✅ added for toggle
 
   static const Color deepOrange = Color(0xFFFF5722);
 
@@ -214,8 +215,16 @@ class _RecipeDetailPageState extends State<RecipeDetailPage>
                 ),
                 const SizedBox(height: 16),
                 GestureDetector(
-                  onTap: () => _showSnack('🔖 Recipe saved!'),
-                  child: const Icon(Icons.bookmark_border, color: deepOrange, size: 32),
+                  onTap: () {
+                    setState(() {
+                      isBookmarked = !isBookmarked;
+                    });
+                  },
+                  child: Icon(
+                    isBookmarked ? Icons.bookmark : Icons.bookmark_border,
+                    color: deepOrange,
+                    size: 32,
+                  ),
                 ),
               ],
             ),
@@ -239,14 +248,16 @@ class _RecipeDetailPageState extends State<RecipeDetailPage>
                       icon: const Icon(Icons.play_arrow, color: Colors.white),
                       label: const Text(
                         'Watch on YouTube',
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.bold),
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: deepOrange,
                         elevation: 0,
                         minimumSize: const Size(0, 42),
                         padding: const EdgeInsets.symmetric(horizontal: 8),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(6)),
                       ),
                     ),
                   ),
@@ -262,14 +273,16 @@ class _RecipeDetailPageState extends State<RecipeDetailPage>
                       icon: const Icon(Icons.volume_up, color: Colors.white),
                       label: const Text(
                         'Hear steps',
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.bold),
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: deepOrange,
                         elevation: 0,
                         minimumSize: const Size(0, 42),
                         padding: const EdgeInsets.symmetric(horizontal: 8),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(6)),
                       ),
                     ),
                   ),
