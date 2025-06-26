@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'recipe_page.dart';
+import 'side_navigation.dart'; // 🔥 Import the drawer
 
 class HomeScreen extends StatelessWidget {
-  // Cleaner constructor using super.key
   const HomeScreen({super.key});
 
-  // Dummy cuisine list
   final List<Map<String, String>> cuisines = const [
     {'name': 'Indian', 'emoji': '🍲'},
     {'name': 'Italian', 'emoji': '🍝'},
@@ -18,15 +18,18 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Platr',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
+        title: const Text('Platr', style: TextStyle(fontWeight: FontWeight.bold)),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.more_vert),
+            onPressed: () => Scaffold.of(context).openEndDrawer(),
+          ),
+        ],
       ),
+      endDrawer: const SideNavigationDrawer(), // 🔥 Attach drawer
       body: Column(
         children: [
-          // Search bar
           Padding(
             padding: const EdgeInsets.all(12.0),
             child: TextField(
@@ -42,27 +45,26 @@ class HomeScreen extends StatelessWidget {
               },
             ),
           ),
-
-          // List of Cuisines
           Expanded(
             child: ListView.builder(
               itemCount: cuisines.length,
               itemBuilder: (context, index) {
                 return ListTile(
-                  leading: Text(
-                    cuisines[index]['emoji']!,
-                    style: const TextStyle(fontSize: 24),
-                  ),
+                  leading: Text(cuisines[index]['emoji']!, style: const TextStyle(fontSize: 24)),
                   title: Text(
                     cuisines[index]['name']!,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w500,
-                    ),
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
                   ),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                   onTap: () {
-                    // TODO: Navigate to list of recipes for this cuisine
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CuisineRecipePage(
+                          cuisineName: cuisines[index]['name']!,
+                        ),
+                      ),
+                    );
                   },
                 );
               },
@@ -70,23 +72,13 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
-
       bottomNavigationBar: BottomNavigationBar(
         items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.bookmark),
-            label: 'Bookmarks',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.bookmark), label: 'Bookmarks'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
-        currentIndex: 0, // Home selected
+        currentIndex: 0,
         onTap: (index) {
           // TODO: Handle bottom nav tap
         },

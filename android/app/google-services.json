@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "328941637152",
+    "project_id": "project-9e115",
+    "storage_bucket": "project-9e115.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:328941637152:android:e057aa34df831f917cb645",
+        "android_client_info": {
+          "package_name": "com.example.Platr"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDKjB1RtYxyTawWiC_BTHc9FcESB1bPxRo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
