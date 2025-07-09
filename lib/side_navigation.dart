@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'personal_recipes.dart';
+import 'saved_items.dart'; // ✅ Import the saved items page
 
 class SideNavigationDrawer extends StatelessWidget {
   const SideNavigationDrawer({super.key});
@@ -18,7 +20,6 @@ class SideNavigationDrawer extends StatelessWidget {
               title: const Text("English"),
               onTap: () {
                 Navigator.pop(context);
-                // Set language to English here
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text("Language set to English")),
                 );
@@ -29,7 +30,6 @@ class SideNavigationDrawer extends StatelessWidget {
               title: const Text("বাংলা (Bangla)"),
               onTap: () {
                 Navigator.pop(context);
-                // Set language to Bangla here
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text("ভাষা বাংলা সেট হয়েছে")),
                 );
@@ -40,7 +40,6 @@ class SideNavigationDrawer extends StatelessWidget {
               title: const Text("हिन्दी (Hindi)"),
               onTap: () {
                 Navigator.pop(context);
-                // Set language to Hindi here
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text("भाषा हिन्दी सेट की गई")),
                 );
@@ -58,9 +57,7 @@ class SideNavigationDrawer extends StatelessWidget {
       child: Column(
         children: [
           const DrawerHeader(
-            decoration: BoxDecoration(
-              color: deepOrange,
-            ),
+            decoration: BoxDecoration(color: deepOrange),
             child: Align(
               alignment: Alignment.bottomLeft,
               child: Text(
@@ -73,8 +70,6 @@ class SideNavigationDrawer extends StatelessWidget {
               ),
             ),
           ),
-
-          // Language Option
           ListTile(
             leading: const Icon(Icons.language, color: deepOrange),
             title: const Text('Language (Translate)'),
@@ -83,8 +78,6 @@ class SideNavigationDrawer extends StatelessWidget {
               _showLanguageDialog(context);
             },
           ),
-
-          // Main Navigation
           Expanded(
             child: ListView(
               padding: EdgeInsets.zero,
@@ -102,11 +95,32 @@ class SideNavigationDrawer extends StatelessWidget {
                 ListTile(
                   leading: const Icon(Icons.bookmark, color: deepOrange),
                   title: const Text('View Saved Items'),
-                  onTap: () => Navigator.pop(context),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const SavedItemsPage(),
+                      ),
+                    );
+                  },
                 ),
                 ListTile(
                   leading: const Icon(Icons.receipt_long, color: deepOrange),
                   title: const Text('View Personal Recipes'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const PersonalRecipesPage(),
+                      ),
+                    );
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.info_outline, color: deepOrange),
+                  title: const Text('About Us'),
                   onTap: () => Navigator.pop(context),
                 ),
                 ListTile(
@@ -127,8 +141,6 @@ class SideNavigationDrawer extends StatelessWidget {
               ],
             ),
           ),
-
-          // Bottom Gradient Decoration
           Container(
             height: 60,
             width: double.infinity,
@@ -137,9 +149,9 @@ class SideNavigationDrawer extends StatelessWidget {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  Color(0x33FF5722), // 20%
-                  Color(0x22FF5722), // 13%
-                  Color(0x11FF5722), // 7%
+                  Color(0x33FF5722),
+                  Color(0x22FF5722),
+                  Color(0x11FF5722),
                   Colors.transparent,
                 ],
               ),

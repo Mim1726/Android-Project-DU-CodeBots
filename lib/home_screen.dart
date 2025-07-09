@@ -1,87 +1,135 @@
 import 'package:flutter/material.dart';
 import 'recipe_page.dart';
-import 'side_navigation.dart'; // 🔥 Import the drawer
+import 'side_navigation.dart';
+import 'search_page.dart'; // ✅ Import the Search Page
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   final List<Map<String, String>> cuisines = const [
-    {'name': 'Indian', 'emoji': '🍲'},
-    {'name': 'Italian', 'emoji': '🍝'},
-    {'name': 'Japanese', 'emoji': '🍣'},
-    {'name': 'Mexican', 'emoji': '🌮'},
-    {'name': 'French', 'emoji': '🥐'},
-    {'name': 'Bangladeshi', 'emoji': '🍛'},
+    {'name': 'Indian', 'emoji': '🍲', 'image': 'assets/images/butter-chicken.jpg'},
+    {'name': 'Italian', 'emoji': '🍝', 'image': 'assets/images/spaghetti-carbonara.jpg'},
+    {'name': 'Japanese', 'emoji': '🍣', 'image': 'assets/images/sushi-roll.jpeg'},
+    {'name': 'Mexican', 'emoji': '🌮', 'image': 'assets/images/tacos_al_pastor.jpg'},
+    {'name': 'French', 'emoji': '🥐', 'image': 'assets/images/french-toast.jpg'},
+    {'name': 'Bangladeshi', 'emoji': '🍛', 'image': 'assets/images/panta_ilish.jpg'},
+    {'name': 'Thai', 'emoji': '🍜', 'image': 'assets/images/pad_thai.jpg'},
+    {'name': 'Chinese', 'emoji': '🥡', 'image': 'assets/images/chowmein.jpg'},
+    {'name': 'American', 'emoji': '🍔', 'image': 'assets/images/burger.jpg'},
+    {'name': 'Greek', 'emoji': '🥙', 'image': 'assets/images/moussaka.jpg'},
   ];
 
   @override
   Widget build(BuildContext context) {
+    final scaffoldKey = GlobalKey<ScaffoldState>(); // 📌 For drawer control
+
     return Scaffold(
+      key: scaffoldKey,
       appBar: AppBar(
         title: const Text('Platr', style: TextStyle(fontWeight: FontWeight.bold)),
         centerTitle: true,
         actions: [
           IconButton(
             icon: const Icon(Icons.more_vert),
-            onPressed: () => Scaffold.of(context).openEndDrawer(),
+            onPressed: () => scaffoldKey.currentState?.openEndDrawer(), // ✅ Open drawer
           ),
         ],
       ),
-      endDrawer: const SideNavigationDrawer(), // 🔥 Attach drawer
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: 'Search recipes...',
-                prefixIcon: const Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              onTap: () {
-                // TODO: Navigate to Search Page
-              },
-            ),
-          ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: cuisines.length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  leading: Text(cuisines[index]['emoji']!, style: const TextStyle(fontSize: 24)),
-                  title: Text(
-                    cuisines[index]['name']!,
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+      endDrawer: const SideNavigationDrawer(), // ✅ Side drawer
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: TextField(
+                readOnly: true, // ✅ Prevent typing here
+                decoration: InputDecoration(
+                  hintText: 'Search recipes...',
+                  prefixIcon: const Icon(Icons.search),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => CuisineRecipePage(
-                          cuisineName: cuisines[index]['name']!,
-                        ),
-                      ),
-                    );
-                  },
-                );
-              },
+                ),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const SearchPage()),
+                  );
+                },
+              ),
             ),
-          ),
-        ],
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.bookmark), label: 'Bookmarks'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
-        ],
-        currentIndex: 0,
-        onTap: (index) {
-          // TODO: Handle bottom nav tap
-        },
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: cuisines.length,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 10,
+                  crossAxisSpacing: 10,
+                  childAspectRatio: 1,
+                ),
+                itemBuilder: (context, index) {
+                  final cuisine = cuisines[index];
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CuisineRecipePage(
+                            cuisineName: cuisine['name']!,
+                          ),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        color: Colors.grey[200],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Expanded(
+                            child: ClipRRect(
+                              borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                              child: Stack(
+                                fit: StackFit.expand,
+                                children: [
+                                  Image.asset(
+                                    cuisine['image']!,
+                                    fit: BoxFit.cover,
+                                  ),
+                                  Container(
+                                    color: const Color.fromRGBO(0, 0, 0, 0.3),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            alignment: Alignment.center,
+                            child: Text(
+                              '${cuisine['emoji']} ${cuisine['name']}',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
       ),
     );
   }

@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:project/main2.dart';
-import 'ChatPage.dart';
+import 'chat_page.dart';
 import 'signup_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -24,8 +23,10 @@ class _LoginPageState extends State<LoginPage>
   void initState() {
     super.initState();
     _controller = AnimationController(
-        vsync: this, duration: const Duration(seconds: 4))
-      ..repeat(reverse: true);
+      vsync: this,
+      duration: const Duration(seconds: 4),
+    )..repeat(reverse: true);
+
     _bgColor = ColorTween(
       begin: Colors.white,
       end: const Color(0xFFF2F2F2),
@@ -40,7 +41,7 @@ class _LoginPageState extends State<LoginPage>
     super.dispose();
   }
 
-  void _login() async{
+  void _login() async {
     if (_formKey.currentState!.validate()) {
       try {
         await FirebaseAuth.instance.signInWithEmailAndPassword(
@@ -48,27 +49,21 @@ class _LoginPageState extends State<LoginPage>
           password: passwordController.text.trim(),
         );
 
-        /*if (emailController.text == "test@gmail.com" &&
-          passwordController.text == "123456") {*/
+        // Navigate to ChatScreen after login with dummy/default values
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) =>
-              ChatApp(
-                //recipeId: 'recipe123',
-                //userId: 'dummyUser123',
-
-              )),
+          MaterialPageRoute(
+            builder: (_) => const ChatScreen(
+              recipeId: 'default_recipe_id',
+              recipeTitle: 'Welcome Chat',
+            ),
+          ),
         );
-      }on FirebaseAuthException catch (e) {
+      } on FirebaseAuthException catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(e.message ?? "Invalid email or password")),
         );
       }
-      /*} else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Invalid email or password")),
-        );
-      }*/
     }
   }
 
@@ -132,4 +127,3 @@ class _LoginPageState extends State<LoginPage>
     );
   }
 }
-
