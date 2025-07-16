@@ -35,24 +35,30 @@ dependencies:
   flutter_local_notifications: ^17.1.0
   timezone: ^0.9.2
   share_plus: ^7.2.1
-  firebase_core: ^2.24.0
-  cloud_firestore: ^4.13.1
+  firebase_core: ^2.30.0
+  #firebase_core: ^2.24.0
+  #cloud_firestore: ^4.13.1
+  cloud_firestore: ^4.15.0
   image_picker: ^1.0.7
-  file_picker: ^10.2.0
+  #image_picker: ^1.0.4
+  #file_picker: ^10.2.0
+  file_picker: ^8.0.7
   #file_picker: ^6.1.1
   #file_picker: ^5.2.11
   open_file: ^3.3.2
   firebase_storage: ^11.6.0
   uuid: ^4.3.3
   timeago: ^3.5.0
+  shared_preferences: ^2.2.2
   #speech_to_text: ^6.6.0
   #speech_to_text: ^6.3.0
-  speech_to_text: ^7.0.0
+  #speech_to_text: ^7.0.0
   permission_handler: ^11.0.1
   #firebase_core: ^latest
   #firebase_auth: ^latest       # Optional, based on what you need
   #firebase_auth: ^2.11.0
-  firebase_auth: ^4.16.0
+  #firebase_auth: ^4.16.0
+  firebase_auth: ^4.17.4
   #cloud_firestore: ^latest     # Optional
 
 
@@ -84,53 +90,10 @@ flutter:
   # the material Icons class.
   uses-material-design: true
   assets:
-    - assets/images/beef_tehari.jpg
-    - assets/images/bhuna_khichuri.jpg
-    - assets/images/biryani.jpg
-    - assets/images/burger.jpg
-    - assets/images/butter-chicken.jpg
-    - assets/images/charsiu.jpg
-    - assets/images/chingri_malai_curry.jpg
-    - assets/images/chole_bhature.jpg
-    - assets/images/chowmein.jpg
-    - assets/images/dal_makhani.jpg
-    - assets/images/default2.jpeg
-    - assets/images/dumplings.jpg
-    - assets/images/french-toast.jpg
-    - assets/images/friedrice.jpg
-    - assets/images/fuchka.jpg
-    - assets/images/gulab_jamun.jpg
-    - assets/images/hotpot.jpg
-    - assets/images/kacchi_biryani.jpg
-    - assets/images/kungpao.jpg
-    - assets/images/logo5.png
-    - assets/images/mapotofu.jpg
-    - assets/images/masala_dosa.jpg
-    - assets/images/matcha_mochi.jpg
-    - assets/images/miso_soup.jpg
-    - assets/images/moglai_paratha.jpg
-    - assets/images/moussaka.jpg
-    - assets/images/okonomiyaki.jpg
-    - assets/images/onigiri.jpg
-    - assets/images/pad_thai.jpg
-    - assets/images/panta_ilish.jpg
-    - assets/images/paneer-tikka.png
-    - assets/images/pav_bhaji.jpg
-    - assets/images/pekingduck.jpg
-    - assets/images/ramen.jpg
-    - assets/images/rogan-josh.jpg
-    - assets/images/roi_macher_kalia.jpg
-    - assets/images/samosa.jpg
-    - assets/images/shemai.jpg
-    - assets/images/shorshe_ilish.jpg
-    - assets/images/spaghetti-carbonara.jpg
-    - assets/images/sushi-roll.jpeg
-    - assets/images/sweetandsour.jpg
-    - assets/images/tacos_al_pastor.jpg
-    - assets/images/takoyaki.jpg
-    - assets/images/tempura.jpg
-    - assets/images/tonkatsu.jpg
-    - assets/images/udon_soup.jpg
+    - assets/images/
+    - assets/screen_images/
+    - assets/profiles/
+    - assets/onboardings/
 
 flutter_launcher_icons:
   android: true

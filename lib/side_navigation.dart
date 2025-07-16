@@ -1,164 +1,141 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
 import 'personal_recipes.dart';
-import 'saved_items.dart'; // ✅ Import the saved items page
+import 'saved_items.dart';
+import 'about_us.dart';
+import 'privacy_policy_page.dart';
+import 'profile_page.dart';
+import 'settings_page.dart'; // 👈 NEW
+import 'login_page.dart';
 
 class SideNavigationDrawer extends StatelessWidget {
   const SideNavigationDrawer({super.key});
 
   static const Color deepOrange = Color(0xFFFF5722);
 
-  void _showLanguageDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text("Choose Language"),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.language, color: deepOrange),
-              title: const Text("English"),
-              onTap: () {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Language set to English")),
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.language, color: deepOrange),
-              title: const Text("বাংলা (Bangla)"),
-              onTap: () {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("ভাষা বাংলা সেট হয়েছে")),
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.language, color: deepOrange),
-              title: const Text("हिन्दी (Hindi)"),
-              onTap: () {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("भाषा हिन्दी सेट की गई")),
-                );
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      child: Column(
+      child: Stack(
+        fit: StackFit.expand,
         children: [
-          const DrawerHeader(
-            decoration: BoxDecoration(color: deepOrange),
-            child: Align(
-              alignment: Alignment.bottomLeft,
-              child: Text(
-                "Platr's Menu",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
+          Image.asset('assets/screen_images/screen3.jpg', fit: BoxFit.cover),
+          Column(
+            children: [
+              const SizedBox(height: 50),
+              _header(),
+              //const Divider(thickness: 1),
+              Expanded(
+                child: ListView(
+                  padding: EdgeInsets.zero,
+                  children: [
+                    _drawerItem(Icons.person, 'View Profile', context,
+                        navigateTo: const ProfilePage()),
+                    _drawerItem(
+                        Icons.notifications, 'Notifications', context),
+                    _drawerItem(Icons.bookmark, 'View Saved Items', context,
+                        navigateTo: const SavedItemsPage()),
+                    _drawerItem(Icons.receipt_long, 'View Personal Recipes',
+                        context,
+                        navigateTo: const PersonalRecipesPage()),
+                    _drawerItem(Icons.info_outline, 'About Us', context,
+                        navigateTo: const AboutUsPage()),
+
+                    // SETTINGS now opens SettingsPage
+                    _drawerItem(Icons.settings, 'Settings', context,
+                        navigateTo: SettingsPage(
+                          isDarkMode: false,      // TODO: replace with real value
+                          fontSize: 16,           // TODO: replace with real value
+                          language: 'English',    // TODO: replace with real value
+                          onThemeChanged: (_) {},     // TODO: connect to state
+                          onFontSizeChanged: (_) {},  // TODO: connect to state
+                          onLanguageChanged: (_) {},  // TODO: connect to state
+                        )),
+
+                    _drawerItem(Icons.privacy_tip, 'Privacy Policy', context,
+                        navigateTo: const PrivacyPolicyPage()),
+                    //const Divider(thickness: 1, height: 0),
+
+                    // 🔒 Logout
+                    ListTile(
+                      leading: const Icon(Icons.logout, color: deepOrange),
+                      title: const Text('Logout',
+                          style: TextStyle(color: Colors.black)),
+                      onTap: () async {
+                        final shouldLogout = await showDialog<bool>(
+                          context: context,
+                          builder: (ctx) => AlertDialog(
+                            title: const Text('Logout'),
+                            content: const Text(
+                                'Are you sure you want to log out?'),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(ctx, false),
+                                child: const Text('Cancel'),
+                              ),
+                              TextButton(
+                                onPressed: () => Navigator.pop(ctx, true),
+                                child: const Text('Logout'),
+                              ),
+                            ],
+                          ),
+                        );
+
+                        if (shouldLogout == true) {
+                          await FirebaseAuth.instance.signOut();
+                          Navigator.of(context, rootNavigator: true)
+                              .pushAndRemoveUntil(
+                            MaterialPageRoute(
+                                builder: (_) => const LoginPage()),
+                                (_) => false,
+                          );
+                        }
+                      },
+                    ),
+                  ],
                 ),
               ),
-            ),
-          ),
-          ListTile(
-            leading: const Icon(Icons.language, color: deepOrange),
-            title: const Text('Language (Translate)'),
-            onTap: () {
-              Navigator.pop(context);
-              _showLanguageDialog(context);
-            },
-          ),
-          Expanded(
-            child: ListView(
-              padding: EdgeInsets.zero,
-              children: [
-                ListTile(
-                  leading: const Icon(Icons.person, color: deepOrange),
-                  title: const Text('View Profile'),
-                  onTap: () => Navigator.pop(context),
-                ),
-                ListTile(
-                  leading: const Icon(Icons.notifications, color: deepOrange),
-                  title: const Text('Notifications'),
-                  onTap: () => Navigator.pop(context),
-                ),
-                ListTile(
-                  leading: const Icon(Icons.bookmark, color: deepOrange),
-                  title: const Text('View Saved Items'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const SavedItemsPage(),
-                      ),
-                    );
-                  },
-                ),
-                ListTile(
-                  leading: const Icon(Icons.receipt_long, color: deepOrange),
-                  title: const Text('View Personal Recipes'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const PersonalRecipesPage(),
-                      ),
-                    );
-                  },
-                ),
-                ListTile(
-                  leading: const Icon(Icons.info_outline, color: deepOrange),
-                  title: const Text('About Us'),
-                  onTap: () => Navigator.pop(context),
-                ),
-                ListTile(
-                  leading: const Icon(Icons.settings, color: deepOrange),
-                  title: const Text('Settings'),
-                  onTap: () => Navigator.pop(context),
-                ),
-                ListTile(
-                  leading: const Icon(Icons.privacy_tip, color: deepOrange),
-                  title: const Text('Privacy Policy'),
-                  onTap: () => Navigator.pop(context),
-                ),
-                ListTile(
-                  leading: const Icon(Icons.logout, color: deepOrange),
-                  title: const Text('Logout'),
-                  onTap: () => Navigator.pop(context),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            height: 60,
-            width: double.infinity,
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Color(0x33FF5722),
-                  Color(0x22FF5722),
-                  Color(0x11FF5722),
-                  Colors.transparent,
-                ],
-              ),
-            ),
+            ],
           ),
         ],
       ),
     );
   }
+
+  // ===== Helpers =====
+  Widget _header() => Container(
+    alignment: Alignment.centerLeft,
+    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+    decoration: const BoxDecoration(
+      color: Colors.white,
+      border: Border(
+        left: BorderSide(color: deepOrange, width: 5),
+      ),
+    ),
+    child: const Text(
+      "Platr's Menu",
+      style: TextStyle(
+        fontSize: 24,
+        fontWeight: FontWeight.bold,
+        color: deepOrange,
+      ),
+    ),
+  );
+
+  Widget _drawerItem(IconData icon, String title, BuildContext context,
+      {Widget? navigateTo}) =>
+      ListTile(
+        leading: Icon(icon, color: deepOrange),
+        title: Text(title, style: const TextStyle(color: Colors.black)),
+        onTap: () {
+          Navigator.pop(context); // close drawer
+          if (navigateTo != null) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => navigateTo),
+            );
+          }
+        },
+      );
 }
