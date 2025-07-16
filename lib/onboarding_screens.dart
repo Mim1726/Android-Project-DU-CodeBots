@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import 'login_page.dart';
 
 class OnboardingScreens extends StatefulWidget {
@@ -67,22 +66,7 @@ class _OnboardingScreensState extends State<OnboardingScreens> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Align(
-                      alignment: Alignment.topRight,
-                      child: !isLast
-                          ? TextButton(
-                        onPressed: _completeOnboarding,
-                        child: const Text(
-                          'Skip',
-                          style: TextStyle(
-                            color: Colors.deepOrange,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      )
-                          : const SizedBox(height: 48),
-                    ),
+                    const SizedBox(), // Empty space at top
                     Column(
                       children: [
                         Text(
@@ -127,6 +111,17 @@ class _OnboardingScreensState extends State<OnboardingScreens> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
+                        TextButton(
+                          onPressed: _completeOnboarding,
+                          child: const Text(
+                            'Skip',
+                            style: TextStyle(
+                              color: Colors.deepOrange,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
                         Row(
                           children: List.generate(
                             _pages.length,

@@ -1,161 +1,160 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:share_plus/share_plus.dart';
+
 import 'edit_profile_page.dart';
+import 'login_page.dart';
 
-class SettingsPage extends StatefulWidget {
-  final bool isDarkMode;
-  final double fontSize;
-  final String language;
-  final Function(bool) onThemeChanged;
-  final Function(double) onFontSizeChanged;
-  final Function(String) onLanguageChanged;
+class SettingsPage extends StatelessWidget {
+  const SettingsPage({super.key});
 
-  const SettingsPage({
-    super.key,
-    required this.isDarkMode,
-    required this.fontSize,
-    required this.language,
-    required this.onThemeChanged,
-    required this.onFontSizeChanged,
-    required this.onLanguageChanged,
-  });
-
-  @override
-  State<SettingsPage> createState() => _SettingsPageState();
-}
-
-class _SettingsPageState extends State<SettingsPage> {
-  late bool isDarkMode;
-  late double fontSize;
-  late String language;
-  bool recipeAlerts = true;
-  bool recipeReminders = false;
-  String preferredCuisine = 'Italian';
-  String dietType = 'Vegetarian';
-
-  @override
-  void initState() {
-    super.initState();
-    isDarkMode = widget.isDarkMode;
-    fontSize = widget.fontSize;
-    language = widget.language;
-    _loadPreferences();
-  }
-
-  Future<void> _loadPreferences() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      recipeAlerts = prefs.getBool('recipeAlerts') ?? true;
-      recipeReminders = prefs.getBool('recipeReminders') ?? false;
-      preferredCuisine = prefs.getString('preferredCuisine') ?? 'Italian';
-      dietType = prefs.getString('dietType') ?? 'Vegetarian';
-    });
-  }
-
-  Future<void> _updatePreferences() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('darkMode', isDarkMode);
-    await prefs.setDouble('fontSize', fontSize);
-    await prefs.setString('language', language);
-    await prefs.setBool('recipeAlerts', recipeAlerts);
-    await prefs.setBool('recipeReminders', recipeReminders);
-    await prefs.setString('preferredCuisine', preferredCuisine);
-    await prefs.setString('dietType', dietType);
-  }
-
-  void _sendEmail(String subject) async {
-    final Uri emailLaunchUri = Uri(
-      scheme: 'mailto',
-      path: 'support@example.com',
-      queryParameters: {'subject': subject},
+  Future<void> _clearStorage(BuildContext context) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text("Clear Storage"),
+        content: const Text("This will remove all saved items. Proceed?"),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text("Cancel")),
+          TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text("Clear")),
+        ],
+      ),
     );
 
-    if (await canLaunchUrl(emailLaunchUri)) {
-      await launchUrl(emailLaunchUri);
-    } else {
+    if (confirm == true) {
+      final userId = FirebaseAuth.instance.currentUser?.uid;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.clear();
+
+      if (userId != null) {
+        try {
+          final savedRecipes = await FirebaseFirestore.instance
+              .collection('saved_recipes')
+              .where('userId', isEqualTo: userId)
+              .get();
+
+          for (var doc in savedRecipes.docs) {
+            await doc.reference.delete();
+          }
+        } catch (e) {
+          debugPrint("Error clearing saved recipes: $e");
+        }
+      }
+
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not open email client')),
+        const SnackBar(content: Text("Storage and saved items cleared")),
       );
     }
   }
 
-  void _showCuisineDialog() {
-    final cuisines = ['Italian', 'Chinese', 'Indian', 'Mexican', 'Bangladeshi', 'Japanese','Turkish','American'];
-    String tempSelected = preferredCuisine;
-
-    showDialog(
+  void _logout(BuildContext context) async {
+    final shouldLogout = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Select Preferred Cuisine'),
-        content: StatefulBuilder(
-          builder: (context, setState) {
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              children: cuisines.map((cuisine) {
-                return RadioListTile<String>(
-                  title: Text(cuisine),
-                  value: cuisine,
-                  groupValue: tempSelected,
-                  onChanged: (value) => setState(() => tempSelected = value!),
-                );
-              }).toList(),
-            );
-          },
-        ),
+      builder: (ctx) => AlertDialog(
+        title: const Text("Logout"),
+        content: const Text("Are you sure you want to logout?"),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
-          TextButton(
-            onPressed: () {
-              setState(() => preferredCuisine = tempSelected);
-              _updatePreferences();
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Preferred Cuisine: $preferredCuisine')),
-              );
-            },
-            child: const Text('Save'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text("Cancel")),
+          TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text("Logout")),
         ],
       ),
     );
+
+    if (shouldLogout == true) {
+      await FirebaseAuth.instance.signOut();
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginPage()),
+            (route) => false,
+      );
+    }
   }
 
-  void _showDietDialog() {
-    final diets = ['Vegetarian', 'Vegan', 'Non-Vegetarian', 'Keto'];
-    String tempSelected = dietType;
+  void _deleteAccount(BuildContext context) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      try {
+        await FirebaseFirestore.instance.collection('users').doc(user.uid).delete();
+        await user.delete();
 
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Account deleted successfully')),
+        );
+
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginPage()),
+              (route) => false,
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error deleting account: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _handlePasswordReset(BuildContext context) async {
+    final email = FirebaseAuth.instance.currentUser?.email;
+
+    if (email == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("No user is currently logged in.")),
+      );
+      return;
+    }
+
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text("Change Password"),
+        content: Text("Send a password reset email to:\n$email ?"),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text("Cancel")),
+          TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text("Send")),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      try {
+        await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Password reset email sent")),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Failed to send email: $e")),
+        );
+      }
+    }
+  }
+
+  void _shareAppLink() {
+    Share.share("Check out our awesome recipe app: https://play.google.com/store/apps/details?id=com.yourapp.package");
+  }
+
+  void _showTermsAndConditions(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Select Diet Type'),
-        content: StatefulBuilder(
-          builder: (context, setState) {
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              children: diets.map((diet) {
-                return RadioListTile<String>(
-                  title: Text(diet),
-                  value: diet,
-                  groupValue: tempSelected,
-                  onChanged: (value) => setState(() => tempSelected = value!),
-                );
-              }).toList(),
-            );
-          },
+      builder: (_) => AlertDialog(
+        title: const Text("Terms & Conditions"),
+        content: const SingleChildScrollView(
+          child: Text(
+            "By using this app, you agree to the following terms:\n\n"
+                "1. Your data is stored securely using Firebase.\n"
+                "2. Recipes you save are visible only to you.\n"
+                "3. You agree not to upload offensive or plagiarized content.\n"
+                "4. The app may collect anonymous usage data for improving user experience.\n"
+                "5. We reserve the right to update these terms at any time.",
+          ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
           TextButton(
-            onPressed: () {
-              setState(() => dietType = tempSelected);
-              _updatePreferences();
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Diet Type: $dietType')),
-              );
-            },
-            child: const Text('Save'),
+            onPressed: () => Navigator.pop(context),
+            child: const Text("I Agree"),
           ),
         ],
       ),
@@ -165,108 +164,73 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Settings')),
+      appBar: AppBar(
+        title: const Text("Settings"),
+        backgroundColor: Colors.deepOrange,
+        foregroundColor: Colors.white,
+      ),
       body: ListView(
-        padding: const EdgeInsets.all(16),
         children: [
-          const Text('User Profile', style: TextStyle(fontWeight: FontWeight.bold)),
-          ListTile(
-            title: const Text('Edit Profile'),
-            leading: const Icon(Icons.person),
-            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const EditProfilePage(initialData: {},))),
-          ),
-          const Divider(),
+          const SizedBox(height: 10),
 
-          const Text('Preferred Cuisine', style: TextStyle(fontWeight: FontWeight.bold)),
           ListTile(
-            title: const Text('Select Preferred Cuisine'),
-            subtitle: Text(preferredCuisine),
-            leading: const Icon(Icons.fastfood),
-            onTap: _showCuisineDialog,
-          ),
-          ListTile(
-            title: const Text('Diet Type'),
-            subtitle: Text(dietType),
-            leading: const Icon(Icons.food_bank),
-            onTap: _showDietDialog,
-          ),
-          const Divider(),
-
-          const Text('App Theme', style: TextStyle(fontWeight: FontWeight.bold)),
-          SwitchListTile(
-            title: const Text('Dark Mode'),
-            value: isDarkMode,
-            onChanged: (value) {
-              setState(() => isDarkMode = value);
-              widget.onThemeChanged(value);
-              _updatePreferences();
-            },
-          ),
-          ListTile(
-            title: const Text('Font Size Preference'),
-            subtitle: Slider(
-              value: fontSize,
-              min: 12,
-              max: 24,
-              divisions: 6,
-              label: fontSize.round().toString(),
-              onChanged: (value) {
-                setState(() => fontSize = value);
-                widget.onFontSizeChanged(value);
-                _updatePreferences();
-              },
-            ),
-          ),
-          const Divider(),
-
-          const Text('Notifications', style: TextStyle(fontWeight: FontWeight.bold)),
-          SwitchListTile(
-            title: const Text('Recipe Alerts'),
-            value: recipeAlerts,
-            onChanged: (value) {
-              setState(() => recipeAlerts = value);
-              _updatePreferences();
-            },
-          ),
-          SwitchListTile(
-            title: const Text('Recipe Reminders'),
-            value: recipeReminders,
-            onChanged: (value) {
-              setState(() => recipeReminders = value);
-              _updatePreferences();
-            },
-          ),
-          const Divider(),
-
-          const Text('Language Settings', style: TextStyle(fontWeight: FontWeight.bold)),
-          ListTile(
-            title: const Text('App Language'),
-            subtitle: Text(language),
-            leading: const Icon(Icons.language),
+            leading: const Icon(Icons.edit, color: Colors.deepOrange),
+            title: const Text("Edit Profile"),
             onTap: () {
-              final newLang = language == 'English' ? 'Bangla' : 'English';
-              setState(() => language = newLang);
-              widget.onLanguageChanged(newLang);
-              _updatePreferences();
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const EditProfilePage(initialData: {},)),
+              );
             },
           ),
+
+          ListTile(
+            leading: const Icon(Icons.lock, color: Colors.deepOrange),
+            title: const Text("Change Password"),
+            onTap: () => _handlePasswordReset(context),
+          ),
+
+          ListTile(
+            leading: const Icon(Icons.delete, color: Colors.deepOrange),
+            title: const Text("Delete Account"),
+            onTap: () => _deleteAccount(context),
+          ),
+
           const Divider(),
 
-          const Text('Feedback & About', style: TextStyle(fontWeight: FontWeight.bold)),
           ListTile(
-            title: const Text('Send Feedback'),
-            leading: const Icon(Icons.feedback),
-            onTap: () => _sendEmail('App Feedback'),
+            leading: const Icon(Icons.delete_sweep, color: Colors.deepOrange),
+            title: const Text("Clear Storage"),
+            subtitle: const Text("Will remove recipes from saved items"),
+            onTap: () => _clearStorage(context),
           ),
+
           ListTile(
-            title: const Text('Report Bug'),
-            leading: const Icon(Icons.bug_report),
-            onTap: () => _sendEmail('Bug Report'),
+            leading: const Icon(Icons.share, color: Colors.deepOrange),
+            title: const Text("Share App Link"),
+            onTap: _shareAppLink,
           ),
+
           ListTile(
-            title: const Text('App Version'),
-            subtitle: const Text('1.0.0'),
-            leading: const Icon(Icons.info_outline),
+            leading: const Icon(Icons.info, color: Colors.deepOrange),
+            title: const Text("App Version"),
+            subtitle: const Text("1.0.0"),
+            onTap: () {},
+          ),
+
+          ListTile(
+            leading: const Icon(Icons.article, color: Colors.deepOrange),
+            title: const Text("Terms & Conditions"),
+            onTap: () => _showTermsAndConditions(context),
+          ),
+
+          const Divider(),
+
+          // 🔚 Logout now at the bottom
+          ListTile(
+            leading: const Icon(Icons.logout, color: Colors.deepOrange),
+            title: const Text("Logout"),
+            onTap: () => _logout(context),
           ),
         ],
       ),

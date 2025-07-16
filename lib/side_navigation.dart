@@ -6,7 +6,7 @@ import 'saved_items.dart';
 import 'about_us.dart';
 import 'privacy_policy_page.dart';
 import 'profile_page.dart';
-import 'settings_page.dart'; // 👈 NEW
+import 'settings_page.dart';
 import 'login_page.dart';
 
 class SideNavigationDrawer extends StatelessWidget {
@@ -25,7 +25,6 @@ class SideNavigationDrawer extends StatelessWidget {
             children: [
               const SizedBox(height: 50),
               _header(),
-              //const Divider(thickness: 1),
               Expanded(
                 child: ListView(
                   padding: EdgeInsets.zero,
@@ -42,20 +41,12 @@ class SideNavigationDrawer extends StatelessWidget {
                     _drawerItem(Icons.info_outline, 'About Us', context,
                         navigateTo: const AboutUsPage()),
 
-                    // SETTINGS now opens SettingsPage
+                    // ✅ Fixed SETTINGS navigation
                     _drawerItem(Icons.settings, 'Settings', context,
-                        navigateTo: SettingsPage(
-                          isDarkMode: false,      // TODO: replace with real value
-                          fontSize: 16,           // TODO: replace with real value
-                          language: 'English',    // TODO: replace with real value
-                          onThemeChanged: (_) {},     // TODO: connect to state
-                          onFontSizeChanged: (_) {},  // TODO: connect to state
-                          onLanguageChanged: (_) {},  // TODO: connect to state
-                        )),
+                        navigateTo: const SettingsPage()),
 
                     _drawerItem(Icons.privacy_tip, 'Privacy Policy', context,
                         navigateTo: const PrivacyPolicyPage()),
-                    //const Divider(thickness: 1, height: 0),
 
                     // 🔒 Logout
                     ListTile(
@@ -103,7 +94,7 @@ class SideNavigationDrawer extends StatelessWidget {
     );
   }
 
-  // ===== Helpers =====
+  // ===== Header =====
   Widget _header() => Container(
     alignment: Alignment.centerLeft,
     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -123,6 +114,7 @@ class SideNavigationDrawer extends StatelessWidget {
     ),
   );
 
+  // ===== Drawer Item =====
   Widget _drawerItem(IconData icon, String title, BuildContext context,
       {Widget? navigateTo}) =>
       ListTile(

@@ -93,7 +93,6 @@ flutter:
     - assets/images/
     - assets/screen_images/
     - assets/profiles/
-    - assets/onboardings/
 
 flutter_launcher_icons:
   android: true

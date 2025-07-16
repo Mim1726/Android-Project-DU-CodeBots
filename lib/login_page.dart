@@ -200,7 +200,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                           duration: const Duration(milliseconds: 100),
                           curve: Curves.easeInOut,
                           child: ElevatedButton.icon(
-                            onPressed: null, // handled by GestureDetector
+                            onPressed: _login, // handled by GestureDetector
                             icon: const Icon(Icons.login),
                             label: const Text("Login"),
                             style: ElevatedButton.styleFrom(

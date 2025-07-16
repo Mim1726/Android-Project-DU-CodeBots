@@ -1,20 +1,22 @@
+// home_screen.dart
 import 'package:flutter/material.dart';
 import 'recipe_page.dart';
 import 'side_navigation.dart';
 import 'search_page.dart';
+import 'profile_page.dart'; // ✅ import profile page
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   final List<Map<String, String>> cuisines = const [
-    {'name': 'Indian',      'emoji': '🍲', 'image': 'assets/images/butter-chicken.jpg'},
+    {'name': 'Indian',      'emoji': '🍲', 'image': 'assets/images/paneer-tikka.png'},
     {'name': 'Italian',     'emoji': '🍝', 'image': 'assets/images/spaghetti-carbonara.jpg'},
-    {'name': 'Japanese',    'emoji': '🍣', 'image': 'assets/images/sushi-roll.jpeg'},
+    {'name': 'Japanese',    'emoji': '🍣', 'image': 'assets/images/sushi.jpg'},
     {'name': 'Mexican',     'emoji': '🌮', 'image': 'assets/images/tacos_al_pastor.jpg'},
     {'name': 'French',      'emoji': '🥐', 'image': 'assets/images/french-toast.jpg'},
     {'name': 'Bangladeshi', 'emoji': '🍛', 'image': 'assets/images/panta_ilish.jpg'},
     {'name': 'Thai',        'emoji': '🍜', 'image': 'assets/images/pad_thai.jpg'},
-    {'name': 'Chinese',     'emoji': '🥡', 'image': 'assets/images/chowmein.jpg'},
+    {'name': 'Chinese',     'emoji': '🥡', 'image': 'assets/images/hotpot.jpg'},
     {'name': 'American',    'emoji': '🍔', 'image': 'assets/images/burger.jpg'},
     {'name': 'Turkish',     'emoji': '🍢', 'image': 'assets/images/kunefe.jpg'},
   ];
@@ -26,11 +28,29 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       key: scaffoldKey,
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.person),
-          onPressed: () {
-            // TODO: Navigate to profile/settings page
+        leading: GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ProfilePage()),
+            );
           },
+          child: Padding(
+            padding: const EdgeInsets.all(7.0),
+            child: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.fromBorderSide(
+                  const BorderSide(color: Colors.deepOrange, width: 2),
+                ),
+              ),
+              child: const CircleAvatar(
+                backgroundColor: Colors.deepOrange,
+                child: Icon(Icons.person, color: Colors.white),
+              ),
+            ),
+          ),
+
         ),
         title: const Text(
           'Home',

@@ -41,7 +41,7 @@ class _chatScreenState extends State<chatScreen> {
     final qaRef = FirebaseFirestore.instance
         .collection('recipes')
         .doc(widget.recipeId)
-        .collection('qa');
+        .collection('review');
 
     final existing = await qaRef.where('askedBy', isEqualTo: user.uid).limit(1).get();
 
@@ -58,7 +58,7 @@ class _chatScreenState extends State<chatScreen> {
     FirebaseFirestore.instance
         .collection('recipes')
         .doc(widget.recipeId)
-        .collection('qa')
+        .collection('review')
         .doc(questionId)
         .collection('messages')
         .orderBy('timestamp')
@@ -88,13 +88,21 @@ class _chatScreenState extends State<chatScreen> {
     if (messageText.isEmpty && text.isEmpty && imageUrl.isEmpty && fileUrl.isEmpty) return;
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
+
+    /*if(questionId == null){
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please wait")),
+      );
+      return;
+    }*/
+
     final userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
     final senderUsername = userDoc.data()?['username'] ?? 'user';
 
     await FirebaseFirestore.instance
         .collection('recipes')
         .doc(widget.recipeId)
-        .collection('qa')
+        .collection('review')
         .doc(questionId)
         .collection('messages')
         .add({

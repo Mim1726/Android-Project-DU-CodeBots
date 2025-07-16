@@ -117,6 +117,7 @@ class ProfilePage extends StatelessWidget {
                             MaterialPageRoute(builder: (_) => const PendingRecipesPage()),
                           ),
                         ),
+                        /*
                         const SizedBox(height: 16),
                         _deepOrangeBtn(
                           text: 'Answer Users Question / Q&A',
@@ -127,7 +128,7 @@ class ProfilePage extends StatelessWidget {
                               const DChatScreen(recipeId: ''), // <-- placeholder
                             ),
                           ),
-                        ),
+                        ), */
                         const SizedBox(height: 30),
                       ],
 
