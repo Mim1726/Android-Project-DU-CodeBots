@@ -12,7 +12,6 @@ import 'review.dart';
 import 'q&a_page.dart';           // ChatScreen (user)
 import 'developers_question_page.dart'; // DChatScreen (developer)
 import 'recipe_audio_guide_page.dart';  // ✅ audio guide page
-import 'ratings.dart';                 // ✅ ratings page
 
 class RecipeDetailPage extends StatefulWidget {
   final Map<String, dynamic> recipe;
@@ -30,25 +29,16 @@ class RecipeDetailPage extends StatefulWidget {
 
 class _RecipeDetailPageState extends State<RecipeDetailPage>
     with TickerProviderStateMixin {
-  // *******************************
-  // Configuration
-  // *******************************
   static const Color deepOrange = Color(0xFFFF5722);
-
-  /// *** 🔗  Update this to your Play Store / Firebase Dynamic Link  ***
   static const String appShareUrl =
       'https://play.google.com/store/apps/details?id=com.yourcompany.yourapp';
 
-  // *******************************
-  // State
-  // *******************************
   final FlutterTts _flutterTts = FlutterTts();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   bool isLiked = false;
   bool isBookmarked = false;
   bool _isReadingAloud = false;
-  bool _hasRated = false;               // ✅ NEW
   int likeCount = 0;
 
   late AnimationController _iconController;
@@ -61,9 +51,6 @@ class _RecipeDetailPageState extends State<RecipeDetailPage>
     'anikasanzida31593@gmail.com',
   ];
 
-  // *******************************
-  // Lifecycle
-  // *******************************
   @override
   void initState() {
     super.initState();
@@ -77,7 +64,6 @@ class _RecipeDetailPageState extends State<RecipeDetailPage>
     userId = FirebaseAuth.instance.currentUser?.uid;
     _checkIfBookmarked();
     _loadLikesStatus();
-    _checkIfRated();                    // ✅ NEW
   }
 
   @override
@@ -87,9 +73,6 @@ class _RecipeDetailPageState extends State<RecipeDetailPage>
     super.dispose();
   }
 
-  // *******************************
-  // Firestore helpers
-  // *******************************
   Future<void> _checkIfBookmarked() async {
     if (userId == null) return;
     final docId = '${widget.recipe['title']}_$userId';
@@ -99,36 +82,18 @@ class _RecipeDetailPageState extends State<RecipeDetailPage>
     }
   }
 
-  Future<void> _checkIfRated() async {
-    if (userId == null) {
-      setState(() => _hasRated = false);
-      return;
-    }
-    final doc =
-    await _firestore.collection('recipes').doc(widget.recipe['title']).get();
-    if (doc.exists) {
-      final data = doc.data();
-      if (data != null &&
-          data['ratings'] is Map &&
-          (data['ratings'] as Map).containsKey(userId)) {
-        setState(() => _hasRated = true);
-      } else {
-        setState(() => _hasRated = false);
-      }
-    }
-  }
-
   Future<void> _loadLikesStatus() async {
     if (userId == null) return;
-    final doc =
-    await _firestore.collection('recipes').doc(widget.recipe['title']).get();
+    final doc = await _firestore
+        .collection('recipes')
+        .doc(widget.recipe['title'])
+        .get();
     if (doc.exists) {
       final data = doc.data()!;
       final likedBy = List<String>.from(data['likedBy'] ?? []);
-      final likes = data['likes'] ?? 0;
       setState(() {
-        likeCount = likes;
         isLiked = likedBy.contains(userId);
+        likeCount = data['likes'] ?? 0;
       });
     }
   }
@@ -151,7 +116,6 @@ class _RecipeDetailPageState extends State<RecipeDetailPage>
       int likes = freshData['likes'] ?? 0;
 
       if (likedBy.contains(userId)) {
-        // Unlike
         likedBy.remove(userId);
         likes = (likes > 0) ? likes - 1 : 0;
         setState(() {
@@ -159,7 +123,6 @@ class _RecipeDetailPageState extends State<RecipeDetailPage>
           likeCount = likes;
         });
       } else {
-        // Like
         likedBy.add(userId!);
         likes += 1;
         setState(() {
@@ -175,9 +138,6 @@ class _RecipeDetailPageState extends State<RecipeDetailPage>
     });
   }
 
-  // *******************************
-  // UI helpers
-  // *******************************
   void _stopTTS() {
     _flutterTts.stop();
     _isReadingAloud = false;
@@ -201,57 +161,10 @@ class _RecipeDetailPageState extends State<RecipeDetailPage>
     }
   }
 
-  /// Handles any back‑navigation (system or app‑bar).
-  Future<bool> _handleBackPressed() async {
-    if (_hasRated || userId == null) {
-      _stopTTS();
-      return true; // pop immediately
-    }
-
-    final shouldRate = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Enjoying the recipe?'),
-        content: const Text(
-          'Would you like to rate this recipe before you leave?',
-        ),
-        actions: [
-          TextButton(
-            child: const Text('Later'),
-            onPressed: () => Navigator.of(ctx).pop(false),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: deepOrange),
-            child: const Text('Rate now'),
-            onPressed: () => Navigator.of(ctx).pop(true),
-          ),
-        ],
-      ),
-    );
-
-    if (shouldRate == true) {
-      await Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => RatingsPage(recipeTitle: widget.recipe['title']),
-        ),
-      );
-      await _checkIfRated(); // refresh flag
-      return false; // cancel original pop
-    }
-
-    _stopTTS(); // user chose Later
-    return true;
-  }
-
-  // *******************************
-  // Build
-  // *******************************
   @override
   Widget build(BuildContext context) {
     final recipe = widget.recipe;
 
-    // ---------- Ingredients & amounts ----------
     List<String> ingredients = [];
     final rawIngredients = recipe['ingredients'];
     if (rawIngredients is List) {
@@ -275,29 +188,27 @@ class _RecipeDetailPageState extends State<RecipeDetailPage>
       amounts = widget.customAmounts!;
     }
 
-    // ---------- Instructions ----------
     final instructions = (recipe['instructions'] as String)
         .split(',')
         .map((e) => e.trim())
         .toList();
 
-    // ---------- Media ----------
     final String? youtubeLink = recipe['youtubeLink'];
     final String? imageName = recipe['imageName'];
 
-    return WillPopScope(                      // ✅ changed from PopScope
-      onWillPop: _handleBackPressed,          // intercept system back
+    return WillPopScope(
+      onWillPop: () async {
+        _stopTTS();
+        return true;
+      },
       child: Stack(
         children: [
-          // Background image
           Positioned.fill(
             child: Image.asset(
               'assets/screen_images/screen2.jpg',
               fit: BoxFit.cover,
             ),
           ),
-
-          // Main Scaffold
           Scaffold(
             backgroundColor: Colors.transparent,
             appBar: _buildAppBar(context, recipe['title'] ?? 'Recipe'),
@@ -317,56 +228,30 @@ class _RecipeDetailPageState extends State<RecipeDetailPage>
     );
   }
 
-  // *******************************
-  // Sub‑widgets
-  // *******************************
   PreferredSizeWidget _buildAppBar(BuildContext context, String title) {
-    return PreferredSize(
-      preferredSize: const Size.fromHeight(kToolbarHeight),
-      child: SafeArea(
-        child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Row(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.arrow_back, color: deepOrange),
-                onPressed: () async {
-                  final shouldPop = await _handleBackPressed();
-                  if (shouldPop) Navigator.pop(context);
-                },
-              ),
-              const SizedBox(width: 6),
-              Expanded(
-                child: Center(
-                  child: Text(
-                    title,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: deepOrange,
-                      fontSize: 20,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ),
-              Builder(
-                builder: (context) => IconButton(
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                  icon: const Icon(Icons.more_vert, color: deepOrange),
-                  onPressed: () => Scaffold.of(context).openEndDrawer(),
-                ),
-              ),
-            ],
-          ),
+    return AppBar(
+      backgroundColor: Colors.white,
+      elevation: 0,
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back, color: deepOrange),
+        onPressed: () => Navigator.pop(context),
+      ),
+      title: Text(
+        title,
+        style: const TextStyle(
+          fontWeight: FontWeight.bold,
+          color: deepOrange,
         ),
       ),
+      centerTitle: true,
+      actions: [
+        Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.more_vert, color: deepOrange),
+            onPressed: () => Scaffold.of(context).openEndDrawer(),
+          ),
+        ),
+      ],
     );
   }
 
@@ -383,7 +268,6 @@ class _RecipeDetailPageState extends State<RecipeDetailPage>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Image
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
             child: imageName != null
@@ -397,8 +281,6 @@ class _RecipeDetailPageState extends State<RecipeDetailPage>
                 : Image.asset('assets/images/default2.jpeg'),
           ),
           const SizedBox(height: 20),
-
-          // Ingredients
           Text('Ingredients:',
               style: Theme.of(context).textTheme.titleLarge!.copyWith(
                 fontWeight: FontWeight.bold,
@@ -436,14 +318,10 @@ class _RecipeDetailPageState extends State<RecipeDetailPage>
               );
             },
             style: ElevatedButton.styleFrom(backgroundColor: deepOrange),
-            child: const Text(
-              'Calculate Ingredient Amounts',
-              style: TextStyle(color: Colors.white),
-            ),
+            child: const Text('Calculate Ingredient Amounts',
+                style: TextStyle(color: Colors.white)),
           ),
           const SizedBox(height: 20),
-
-          // Instructions
           Text('Instructions:',
               style: Theme.of(context).textTheme.titleLarge!.copyWith(
                 fontWeight: FontWeight.bold,
@@ -466,17 +344,14 @@ class _RecipeDetailPageState extends State<RecipeDetailPage>
     );
   }
 
-  // Floating like / comment / share / bookmark buttons
   Widget _buildFloatingButtons(
       Map<String, dynamic> recipe, String? youtubeLink) {
     return Positioned(
       bottom: 70,
       right: 16,
       child: Column(
-        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Like button
           GestureDetector(
             onTap: () {
               _stopTTS();
@@ -500,8 +375,6 @@ class _RecipeDetailPageState extends State<RecipeDetailPage>
             ),
           ),
           const SizedBox(height: 16),
-
-          // Comment button
           GestureDetector(
             onTap: () {
               _stopTTS();
@@ -518,8 +391,6 @@ class _RecipeDetailPageState extends State<RecipeDetailPage>
             child: const Icon(Icons.comment, color: deepOrange, size: 32),
           ),
           const SizedBox(height: 16),
-
-          // Share button
           GestureDetector(
             onTap: () {
               _stopTTS();
@@ -534,8 +405,6 @@ class _RecipeDetailPageState extends State<RecipeDetailPage>
             child: const Icon(Icons.share, color: deepOrange, size: 32),
           ),
           const SizedBox(height: 16),
-
-          // Bookmark button
           GestureDetector(
             onTap: () async {
               _stopTTS();
@@ -580,7 +449,6 @@ class _RecipeDetailPageState extends State<RecipeDetailPage>
     );
   }
 
-  // Q&A circle button (bottom‑left)
   Widget _buildQAButton(Map<String, dynamic> recipe) {
     return Positioned(
       bottom: 65,
@@ -614,7 +482,6 @@ class _RecipeDetailPageState extends State<RecipeDetailPage>
     );
   }
 
-  // Bottom bar – YouTube & Audio guide
   Widget _buildBottomBar(List<String> instructions, String? imageName,
       String? youtubeLink) {
     return Positioned(
@@ -626,7 +493,6 @@ class _RecipeDetailPageState extends State<RecipeDetailPage>
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
         child: Row(
           children: [
-            // YouTube button
             Expanded(
               child: ElevatedButton.icon(
                 onPressed: () {
@@ -660,7 +526,6 @@ class _RecipeDetailPageState extends State<RecipeDetailPage>
               color: Colors.white,
               margin: const EdgeInsets.symmetric(horizontal: 6),
             ),
-            // Audio guide button
             Expanded(
               child: ElevatedButton.icon(
                 onPressed: () {

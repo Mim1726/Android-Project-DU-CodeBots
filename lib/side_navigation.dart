@@ -8,6 +8,7 @@ import 'privacy_policy_page.dart';
 import 'profile_page.dart';
 import 'settings_page.dart';
 import 'login_page.dart';
+import 'ratings.dart';
 
 class SideNavigationDrawer extends StatelessWidget {
   const SideNavigationDrawer({super.key});
@@ -44,6 +45,8 @@ class SideNavigationDrawer extends StatelessWidget {
                     // ✅ Fixed SETTINGS navigation
                     _drawerItem(Icons.settings, 'Settings', context,
                         navigateTo: const SettingsPage()),
+                    _drawerItem(Icons.star_rate, 'Rate Our App', context,
+                        navigateTo: const RatingsPage()),
 
                     _drawerItem(Icons.privacy_tip, 'Privacy Policy', context,
                         navigateTo: const PrivacyPolicyPage()),

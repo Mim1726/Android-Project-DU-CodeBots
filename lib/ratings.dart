@@ -1,160 +1,135 @@
-// ratings.dart
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 class RatingsPage extends StatefulWidget {
-  final String recipeTitle;
-
-  const RatingsPage({super.key, required this.recipeTitle});
+  const RatingsPage({super.key});
 
   @override
   State<RatingsPage> createState() => _RatingsPageState();
 }
 
 class _RatingsPageState extends State<RatingsPage> {
-  // ---------- STATE ----------
-  int _selectedRating = 0;   // user’s chosen stars
-  bool _hasRated = false;    // disables buttons after rating
+  double _rating = 0;             // current selected rating by user
+  int _totalUsers = 0;            // total number of users rated
+  double _cumulativeRating = 0;   // total of all rating values
 
-  final String? userId = FirebaseAuth.instance.currentUser?.uid;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final TextEditingController _feedbackController = TextEditingController();
 
-  // ---------- INITIAL LOAD ----------
-  @override
-  void initState() {
-    super.initState();
-    _loadUserRating();
-  }
+  double get _averageRating =>
+      _totalUsers == 0 ? 0 : _cumulativeRating / _totalUsers;
 
-  Future<void> _loadUserRating() async {
-    if (userId == null) return;
-    final snap =
-    await _firestore.collection('recipes').doc(widget.recipeTitle).get();
-
-    final data = snap.data() as Map<String, dynamic>? ?? {};
-    final ratings = data['ratings'] as Map<String, dynamic>? ?? {};
-
-    if (ratings.containsKey(userId)) {
-      setState(() {
-        _selectedRating = ratings[userId] as int;
-        _hasRated = true;
-      });
-    }
-  }
-
-  // ---------- FIRESTORE WRITE ----------
-  Future<void> _submitRating(int stars) async {
-    if (userId == null) {
+  void _submitRating() {
+    if (_rating == 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please log in to rate.")),
+        const SnackBar(content: Text('Please select a star rating.')),
       );
       return;
     }
 
-    await _firestore.collection('recipes').doc(widget.recipeTitle).set({
-      'ratings': {userId!: stars}
-    }, SetOptions(merge: true));
-  }
+    setState(() {
+      _totalUsers++;
+      _cumulativeRating += _rating;
+      _feedbackController.clear();
+    });
 
-  // ---------- STAR WIDGET ----------
-  Widget _buildStarRow(int displayRating) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(
-        5,
-            (i) => IconButton(
-          icon: Icon(
-            Icons.star,
-            size: 36,
-            color: i < displayRating ? Colors.deepOrange : Colors.grey,
-          ),
-          onPressed: _hasRated
-              ? null
-              : () async {
-            setState(() {
-              _selectedRating = i + 1;
-              _hasRated = true; // lock immediately
-            });
-            await _submitRating(i + 1);
-            if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("✅ Thanks for rating!")),
-              );
-            }
-          },
-        ),
-      ),
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Thank you for your feedback!')),
     );
   }
 
-  // ---------- UI ----------
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Rate: ${widget.recipeTitle}'),
+        title: const Text('Rate Our App'),
         backgroundColor: Colors.deepOrange,
       ),
-      body: StreamBuilder<DocumentSnapshot>(
-        stream: _firestore
-            .collection('recipes')
-            .doc(widget.recipeTitle)
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          // ----- ratings data from Firestore -----
-          final data = snapshot.data!.data() as Map<String, dynamic>? ?? {};
-          final ratings = data['ratings'] as Map<String, dynamic>? ?? {};
-
-          final values = ratings.values.map((e) => e as int).toList();
-          final averageRating =
-          values.isNotEmpty ? values.reduce((a, b) => a + b) / values.length : 0.0;
-          final totalRatings = values.length;
-
-          // Use state value if user has just rated; otherwise DB value
-          final userRating =
-          userId != null && ratings.containsKey(userId) ? ratings[userId] as int : 0;
-          final displayRating = _hasRated ? _selectedRating : userRating;
-
-          return Center(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text(
-                    'How would you rate this recipe?',
-                    style: TextStyle(fontSize: 18),
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.asset(
+            'assets/screen_images/screen8.jpg',
+            fit: BoxFit.cover,
+          ),
+          SingleChildScrollView(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              children: [
+                const Text(
+                  'How would you rate our app?',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
                   ),
-                  const SizedBox(height: 20),
-                  _buildStarRow(displayRating),
-                  const SizedBox(height: 20),
-
-                  // ---------- RATING SUMMARY ALWAYS VISIBLE ----------
-                  if (totalRatings == 0) ...[
-                    const Text(
-                      'No ratings yet – be the first!',
-                      style: TextStyle(fontSize: 14, color: Colors.grey),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(5, (index) {
+                    return IconButton(
+                      icon: Icon(
+                        index < _rating ? Icons.star : Icons.star_border,
+                        color: Colors.deepOrange,
+                        size: 32,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _rating = index + 1.0;
+                        });
+                      },
+                    );
+                  }),
+                ),
+                Text(
+                  'You rated: $_rating star(s)',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                if (_totalUsers > 0) ...[
+                  Text(
+                    'Average Rating: ${_averageRating.toStringAsFixed(1)} ⭐',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
                     ),
-                  ] else ...[
-                    Text(
-                      '⭐ Average Rating: ${averageRating.toStringAsFixed(1)} / 5.0',
-                      style: const TextStyle(fontSize: 16, color: Colors.black87),
+                  ),
+                  Text(
+                    'Rated by $_totalUsers user${_totalUsers > 1 ? 's' : ''}',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Colors.black87,
                     ),
-                    Text(
-                      '📊 Based on $totalRatings vote${totalRatings > 1 ? 's' : ''}',
-                      style: const TextStyle(fontSize: 14, color: Colors.grey),
-                    ),
-                  ],
+                  ),
                 ],
-              ),
+                const SizedBox(height: 20),
+                TextField(
+                  controller: _feedbackController,
+                  decoration: const InputDecoration(
+                    labelText: 'Additional Feedback (optional)',
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(),
+                  ),
+                  maxLines: 3,
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: _submitRating,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.deepOrange,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: const Text('Submit'),
+                ),
+              ],
             ),
-          );
-        },
+          ),
+        ],
       ),
     );
   }

@@ -193,7 +193,7 @@ class _DChatReplyPageState extends State<DChatReplyPage> {
           // Background image
           Positioned.fill(
             child: Image.asset(
-              'assets/screen_images/screen11.jpg',
+              'assets/screen_images/screen1.jpg',
               fit: BoxFit.cover,
             ),
           ),
