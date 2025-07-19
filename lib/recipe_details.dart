@@ -16,10 +16,12 @@ import 'recipe_audio_guide_page.dart';  // ✅ audio guide page
 class RecipeDetailPage extends StatefulWidget {
   final Map<String, dynamic> recipe;
   final List<String>? customAmounts;
+  //final String? userId;
 
   const RecipeDetailPage({
     super.key,
     required this.recipe,
+    //required this.userId,
     this.customAmounts,
   });
 
@@ -83,60 +85,110 @@ class _RecipeDetailPageState extends State<RecipeDetailPage>
   }
 
   Future<void> _loadLikesStatus() async {
-    if (userId == null) return;
-    final doc = await _firestore
-        .collection('recipes')
-        .doc(widget.recipe['title'])
-        .get();
-    if (doc.exists) {
-      final data = doc.data()!;
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    final userId = user.email!;
+    final recipeTitle = widget.recipe['title'].toString();
+
+    try {
+      // Step 1: Fetch recipe document using the title field
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('recipes')
+          .where('title', isEqualTo: recipeTitle)
+          .get();
+
+      if (querySnapshot.docs.isEmpty) {
+        _showToast('Recipe not found.');
+        return;
+      }
+
+      final recipeDoc = querySnapshot.docs.first;
+      final data = recipeDoc.data();
+
       final likedBy = List<String>.from(data['likedBy'] ?? []);
+      final likes = data['likes'] ?? 0;
+
       setState(() {
         isLiked = likedBy.contains(userId);
-        likeCount = data['likes'] ?? 0;
+        likeCount = likes;
       });
+    } catch (e) {
+      _showToast('Failed to load like status: ${e.toString()}');
     }
   }
 
-  Future<void> _toggleLike() async {
-    if (userId == null) {
-      _showToast('Please login to like.');
-      return;
-    }
 
-    final recipeDocRef =
-    _firestore.collection('recipes').doc(widget.recipe['title']);
 
-    await _firestore.runTransaction((transaction) async {
-      final freshSnap = await transaction.get(recipeDocRef);
-      if (!freshSnap.exists) return;
 
-      final freshData = freshSnap.data()!;
-      final likedBy = List<String>.from(freshData['likedBy'] ?? []);
-      int likes = freshData['likes'] ?? 0;
 
-      if (likedBy.contains(userId)) {
-        likedBy.remove(userId);
-        likes = (likes > 0) ? likes - 1 : 0;
-        setState(() {
-          isLiked = false;
-          likeCount = likes;
-        });
-      } else {
-        likedBy.add(userId!);
-        likes += 1;
-        setState(() {
-          isLiked = true;
-          likeCount = likes;
-        });
+
+  Future<void> _toggleLike(String recipeTitle) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    final userId = user.email!;
+    try {
+      // Step 1: Get the recipe document using title field
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('recipes')
+          .where('title', isEqualTo: recipeTitle)
+          .get();
+
+      if (querySnapshot.docs.isEmpty) {
+        print("❌ No recipe found for title: $recipeTitle");
+        return;
       }
 
-      transaction.update(recipeDocRef, {
+      final recipeDoc = querySnapshot.docs.first;
+      final recipeId = recipeDoc.id;
+      final recipeRef = FirebaseFirestore.instance.collection('recipes').doc(recipeId);
+
+      final likesCollection = recipeRef.collection('likes');
+      final userLikeDoc = likesCollection.doc(userId);
+
+      final likeSnapshot = await userLikeDoc.get();
+      final likedBy = List<String>.from(recipeDoc.data()['likedBy'] ?? []);
+      int likes = recipeDoc.data()['likes'] ?? 0;
+
+      if (likeSnapshot.exists) {
+        // User already liked → unlike
+        await userLikeDoc.delete();
+        likedBy.remove(userId);
+        likes = (likes - 1).clamp(0, likes); // prevent negative
+
+        print("👎 Unliked recipe: $recipeTitle");
+      } else {
+        // User hasn't liked yet → like
+        await userLikeDoc.set({
+          'email': userId,
+          'likedAt': FieldValue.serverTimestamp(),
+        });
+        likedBy.add(userId);
+        likes += 1;
+
+        print("👍 Liked recipe: $recipeTitle");
+      }
+
+      // Step 3: Update main recipe document fields
+      await recipeRef.update({
         'likedBy': likedBy,
         'likes': likes,
       });
-    });
+
+      // Step 4: Update UI
+      setState(() {
+        isLiked = !likeSnapshot.exists;
+        likeCount = likes;
+      });
+
+      print("✅ Updated Firestore + UI");
+    } catch (e) {
+      _showToast('Like toggle failed: ${e.toString()}');
+    }
   }
+
+
 
   void _stopTTS() {
     _flutterTts.stop();
@@ -346,6 +398,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage>
 
   Widget _buildFloatingButtons(
       Map<String, dynamic> recipe, String? youtubeLink) {
+    final recipeId = recipe['title'];
     return Positioned(
       bottom: 70,
       right: 16,
@@ -355,7 +408,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage>
           GestureDetector(
             onTap: () {
               _stopTTS();
-              _toggleLike();
+              _toggleLike(recipeId);
               _iconController.forward().then((_) => _iconController.reverse());
             },
             child: ScaleTransition(
@@ -382,7 +435,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage>
                 context,
                 MaterialPageRoute(
                   builder: (_) => chatScreen(
-                    recipeId: recipe['title'],
+                    recipeId: recipeId,
                     recipeTitle: recipe['title'],
                   ),
                 ),

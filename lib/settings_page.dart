@@ -73,25 +73,39 @@ class SettingsPage extends StatelessWidget {
   }
 
   void _deleteAccount(BuildContext context) async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      try {
-        await FirebaseFirestore.instance.collection('users').doc(user.uid).delete();
-        await user.delete();
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text("Delete Account"),
+        content: const Text("Are you sure you want to permanently delete your account? This action cannot be undone."),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text("Cancel")),
+          TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text("Delete")),
+        ],
+      ),
+    );
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Account deleted successfully')),
-        );
+    if (shouldDelete == true) {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        try {
+          await FirebaseFirestore.instance.collection('users').doc(user.uid).delete();
+          await user.delete();
 
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => const LoginPage()),
-              (route) => false,
-        );
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error deleting account: $e')),
-        );
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Account deleted successfully')),
+          );
+
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => const LoginPage()),
+                (route) => false,
+          );
+        } catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error deleting account: $e')),
+          );
+        }
       }
     }
   }
@@ -179,7 +193,7 @@ class SettingsPage extends StatelessWidget {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const EditProfilePage(initialData: {},)),
+                MaterialPageRoute(builder: (context) => const EditProfilePage(initialData: {})),
               );
             },
           ),
@@ -226,7 +240,6 @@ class SettingsPage extends StatelessWidget {
 
           const Divider(),
 
-          // 🔚 Logout now at the bottom
           ListTile(
             leading: const Icon(Icons.logout, color: Colors.deepOrange),
             title: const Text("Logout"),

@@ -36,12 +36,12 @@ class HomeScreen extends StatelessWidget {
             );
           },
           child: Padding(
-            padding: const EdgeInsets.all(7.0),
+            padding: const EdgeInsets.all(6.0),
             child: Container(
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.fromBorderSide(
-                  const BorderSide(color: Colors.deepOrange, width: 2),
+                  const BorderSide(color: Colors.deepOrange, width: 1),
                 ),
               ),
               child: const CircleAvatar(
