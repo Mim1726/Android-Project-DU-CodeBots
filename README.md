@@ -1,190 +1,89 @@
-# Flutter-Project
-A new Flutter project.
+# 🥘 Platr – Your Personal Recipe Companion
+![Logo](assets/images/logo5.png)
 
-## Getting Started
+Platr is a beautifully designed Flutter-based recipe application that helps users explore, create, and manage a wide variety of recipes. Whether you're a seasoned chef or a home cook, Platr makes cooking and meal planning easier, more fun, and more personalized.
 
-This project is a starting point for a Flutter application.
+---
 
-A few resources to get you started if this is your first Flutter project:
+## 📱 Features
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+### 1. 🍽️ Explore Recipes
+- Browse a collection of recipes categorized by cuisines (e.g., Indian, Italian, Chinese, etc.)
+- View detailed ingredients and cooking instructions
+- See nutrition facts and cooking time
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### 2. 📝 Upload Personal Recipes
+- Add your own recipes with title, description, ingredients, instructions, and images
+- Save as draft or submit for review
 
-## Directory Layout
-```
-/my_flutter_project
-│-- /android
-│-- /ios
-│-- /lib
-│   │-- main.dart  <-- Your main Dart file
-│   │-- home.dart  <-- Additional Dart files (if needed)
-│-- /test
-│-- pubspec.yaml
-│-- README.md
-```
-## Combined Fromat
-```
-Flutter Frontend (Android, iOS)
-    |
-    |-- REST API or GraphQL Backend
-    |     |
-    |     |-- User Service (Login/Signup/Profile)
-    |     |-- Recipe Service (CRUD recipes, Search)
-    |     |-- Chatbot Service (Chat history, Q&A)
-    |     |-- Voice Service (Text-to-Speech)
-    |
-    |-- Cloud Storage
-    |     |-- Image Storage (Firebase Storage / AWS S3)
-    |
-    |-- Database
-          |-- Recipes Table
-          |-- Users Table
-          |-- Chats Table
-          |-- Bookmarks Table
-```
-## Entity-Relationship Diagram (ERD)
-```
-User
-|-- id (PK)
-|-- username
-|-- email
-|-- password
-|-- profile_picture
+### 3. 🔖 Bookmark & Offline Access
+- Bookmark your favorite recipes
+- View them even without an internet connection
 
-Recipe
-|-- id (PK)
-|-- name
-|-- image_url
-|-- country
-|-- ingredients (List)
-|-- steps (List)
-|-- youtube_link
-|-- created_by (FK to User)
+### 4. ❤️ Interact with Recipes
+- Like, comment, and share your favorite recipes
+- Messenger-style interaction icons with animated effects
 
-Bookmark
-|-- id (PK)
-|-- user_id (FK)
-|-- recipe_id (FK)
+### 5. 📊 Spice Calculator
+- Calculate ingredient proportions based on your input
+- Choose units (grams, tsp, tbsp, etc.)
+- Save or share your calculated output
 
-Chat
-|-- id (PK)
-|-- recipe_id (FK)
-|-- user_id (FK)
-|-- message
-|-- timestamp
+### 6. 📧 About Us Page
+- Meet the developers behind Platr
+- Click on email addresses to contact via your default mail app
+
+### 7. 🔐 Authentication
+- Sign up and log in with Firebase Authentication
+- Secure and user-friendly authentication system
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Flutter SDK installed
+- Firebase project setup
+- Android Studio or VS Code
+
+### Installation
+```bash
+# Install Flutter SDK
+flutter --version
+
+# Clone the project's repository
+git clone git clone https://github.com/Mim1726/Android-Project-DU-CodeBots.git
+
+# Navigate to project's directory
+cd Android-Project-DU-CodeBots
+
+# Get dependencies
+flutter pub get
 
 ```
-## Differnt Screen's Design
-### 🏠 1. Home Screen
+### Launch Application
 ```
-------------------------------------------------
-|  Platr Logo         [Search Bar 🔍]           |
-------------------------------------------------
-| 🍲 Indian Cuisine                         ➔  |
-| 🍝 Italian Cuisine                        ➔  |
-| 🍣 Japanese Cuisine                       ➔  |
-| 🌮 Mexican Cuisine                        ➔  |
-| ... (scroll)                                |
-------------------------------------------------
-| [Bottom Nav Bar: Home | Bookmarks | Profile] |
-------------------------------------------------
+flutter run
 ```
-### 🔎 2. Search Results Screen
-```
-------------------------------------------------
-| [Back ←]   Search: "Chicken"                 |
-------------------------------------------------
-| 🍗 Butter Chicken            (India)   ➔    |
-| 🍗 Chicken Alfredo           (Italy)   ➔    |
-| 🍗 Teriyaki Chicken          (Japan)   ➔    |
-------------------------------------------------
-```
-### 📜 3. Recipe Details Screen
-```
-------------------------------------------------
-| [Back ←]  Butter Chicken 🍗                  |
-------------------------------------------------
-| [Recipe Image 📷]                             |
-------------------------------------------------
-| 🛒 Ingredients:                             |
-|  - Chicken                                   |
-|  - Butter                                    |
-|  - Spices                                    |
-| ...                                          |
-------------------------------------------------
-| 📜 Steps:                                   |
-| 1. Marinate chicken                         |
-| 2. Cook on medium flame                     |
-| 3. Add butter                               |
-| ...                                          |
-| [🔊 Listen to steps] [🎥 Watch on YouTube]   |
-------------------------------------------------
-| 💬 Ask a question... [Send]                  |
-| 👥 Other people's answers below              |
-------------------------------------------------
-| [Bookmark ⭐] [Share 🔗]                      |
-------------------------------------------------
-```
-### 💬 4. Chat Screen (Inside Recipe Details)
-```
-------------------------------------------------
-| Q&A for Butter Chicken 🍗                    |
-------------------------------------------------
-| You: Can I replace butter with oil?          |
-| ChefMina: Yes, but taste will differ slightly.|
-| FoodieJoe: Try ghee, it’s better!             |
-| ...                                          |
-| [Type message...] [Send]                     |
-------------------------------------------------
-```
-### 🏷️ 5. Bookmarks Screen
-```
-------------------------------------------------
-| [Back ←]  My Bookmarks ⭐                     |
-------------------------------------------------
-| 🍜 Pho Soup           (Vietnam)        ➔    |
-| 🍔 Cheeseburger       (USA)            ➔    |
-| 🍛 Biryani            (India)          ➔    |
-------------------------------------------------
-```
-### 👤 6. Profile Screen
-```
-------------------------------------------------
-| [Profile Picture]                            |
-| Username: FoodieJane                         |
-| Email: foodie@example.com                    |
-------------------------------------------------
-| [My Recipes]  [My Bookmarks]                 |
-| [Settings]  [Logout]                         |
-------------------------------------------------
-```
-### Bottom Navigation Bar (persistent)
-```
-------------------------------------------------
-| [🏠 Home] [⭐ Bookmarks] [👤 Profile]         |
-------------------------------------------------
-```
-### 📜 Quick Flow Diagram
-```
-Splash ➔ Home ➔ [Search ➔ Results ➔ Details]
-                      ➔ [Cuisine ➔ Recipes ➔ Details]
-Details ➔ [Bookmark | Share | Chat | Listen Steps]
-Profile ➔ [View Bookmarks | Settings]
-```
-### 💡 Tiny Improvements You Could Add Later:
-- Dark Mode toggle
-- Ratings for recipes (5⭐ system)
-- Upload your own Recipe (future version)
-## Download and Setup Instructions
-### 1. Install Flutter and Setup Android Studio
-You can install Flutter and set up Android Studio following this: [YouTube Video](https://www.youtube.com/watch?v=mMeQhLGD-og)
-### 2. Wireless Debugging
-You can run your Flutter app wirelessly. Follow this: [YouTube Video](https://www.youtube.com/watch?v=p2bsfBA6Ixg)
+---
 
+## 🔧 Tech Stack
+
+- **Flutter** – Frontend UI
+- **Firebase Firestore** – Real-time database
+- **Firebase Auth** – User authentication
+- **Firebase Storage** – Image hosting
+- **Dart** – Main programming language
+
+---
+
+## 📸 Screenshots
+
+![Platr Home Screen](assets/screens/home.png)
+![Recipe Details](assets/screens/recipe_details.png)
+![Spice Calculator](assets/screens/spice_calculator.png)
+
+---
 ## Team Name
 ### DU_CodeBots🤖
 
