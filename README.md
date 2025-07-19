@@ -2,6 +2,10 @@
 ![Logo](assets/images/logo5.png)
 
 Platr is a beautifully designed Flutter-based recipe application that helps users explore, create, and manage a wide variety of recipes. Whether you're a seasoned chef or a home cook, Platr makes cooking and meal planning easier, more fun, and more personalized.
+## 📱 Download APK
+
+[![Download APK](https://img.shields.io/badge/Download-APK-blue?logo=android)](https://github.com/Mim1726/Android-Project-DU-CodeBots/releases/download/v1.0.0/app-release.apk)
+
 
 ---
 
@@ -79,9 +83,15 @@ flutter run
 
 ## 📸 Screenshots
 
-![Platr Home Screen](assets/screens/home.png)
-![Recipe Details](assets/screens/recipe_details.png)
-![Spice Calculator](assets/screens/spice_calculator.png)
+![Platr Home Screen](photos/home.jpg)
+![Recipe Details](photos/recipe_details.jpg)
+![Spice Calculator](photos/calculator.jpg)
+![Saved Items](photos/saved_items.jpg)
+![Personal Recipes](photos/personal_recipes.jpg)
+![Post Recipe](photos/post_recipe.jpg)
+![Q&A Page](photos/qna.jpg)
+![Ratings Page](photos/rating.jpg)
+![Settings Page](photos/settings.jpg)
 
 ---
 ## Team Name
