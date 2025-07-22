@@ -1,7 +1,8 @@
 # 🥘 Platr – Your Personal Recipe Companion
-![Logo](assets/images/logo5.png)
-
 Platr is a beautifully designed Flutter-based recipe application that helps users explore, create, and manage a wide variety of recipes. Whether you're a seasoned chef or a home cook, Platr makes cooking and meal planning easier, more fun, and more personalized.
+
+<img src="assets/images/logo5.png" alt="Logo" width="140" />
+
 ## 📱 Download APK
 
 [![Download APK](https://img.shields.io/badge/Download-APK-blue?logo=android)](https://github.com/Mim1726/Android-Project-DU-CodeBots/releases/download/v1.0.0/app-release.apk)
@@ -83,15 +84,8 @@ flutter run
 
 ## 📸 Screenshots
 
-![Platr Home Screen](photos/home.jpg)
-![Recipe Details](photos/recipe_details.jpg)
-![Spice Calculator](photos/calculator.jpg)
-![Saved Items](photos/saved_items.jpg)
-![Personal Recipes](photos/personal_recipes.jpg)
-![Post Recipe](photos/post_recipe.jpg)
-![Q&A Page](photos/qna.jpg)
-![Ratings Page](photos/rating.jpg)
-![Settings Page](photos/settings.jpg)
+<table> <tr> <td align="center"> <img src="photos/onboarding1.jpg" width="200"/><br/> <sub><b>Onboarding 1</b></sub> </td> <td align="center"> <img src="photos/onboarding2.jpg" width="200"/><br/> <sub><b>Onboarding 2</b></sub> </td> <td align="center"> <img src="photos/onboarding3.jpg" width="200"/><br/> <sub><b>Onboarding 3</b></sub> </td> </tr> <tr> <td align="center"> <img src="photos/home.jpg" width="200"/><br/> <sub><b>Home Screen</b></sub> </td> <td align="center"> <img src="photos/side_navigation.jpg" width="200"/><br/> <sub><b>Side Navigation</b></sub> </td> <td align="center"> <img src="photos/recipe_details.jpg" width="200"/><br/> <sub><b>Recipe Details</b></sub> </td> </tr> <tr> <td align="center"> <img src="photos/voice.jpg" width="200"/><br/> <sub><b>Voice Feature</b></sub> </td> <td align="center"> <img src="photos/calculator.jpg" width="200"/><br/> <sub><b>Spice Calculator</b></sub> </td> <td align="center"> <img src="photos/saved_items.jpg" width="200"/><br/> <sub><b>Saved Items</b></sub> </td> </tr> <tr> <td align="center"> <img src="photos/personal_recipes.jpg" width="200"/><br/> <sub><b>Personal Recipes</b></sub> </td> <td align="center"> <img src="photos/post_recipe.jpg" width="200"/><br/> <sub><b>Post a Recipe</b></sub> </td> <td align="center"> <img src="photos/qna.jpg" width="200"/><br/> <sub><b>Q&A Page</b></sub> </td> </tr> <tr> <td align="center"> <img src="photos/rating.jpg" width="200"/><br/> <sub><b>Ratings Page</b></sub> </td> <td align="center"> <img src="photos/pending.jpg" width="200"/><br/> <sub><b>Approve Pending Recipe</b></sub> </td> <td align="center"> <img src="photos/about_us.jpg" width="200"/><br/> <sub><b>About Us</b></sub> </td> </tr> <tr> <td align="center"> <img src="photos/search.jpg" width="200"/><br/> <sub><b>Search in Home Page</b></sub> </td> <td align="center"> <img src="photos/search2.jpg" width="200"/><br/> <sub><b>Search in Recipe Page</b></sub> </td> <td align="center"> <img src="photos/settings.jpg" width="200"/><br/> <sub><b>Settings Page</b></sub> </td> </tr> </table>
+
 
 ---
 ## Team Name
